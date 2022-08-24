@@ -9,7 +9,7 @@ from rest_framework import status
 def super_list(request):
 
     if request.method == 'GET':
-        supers = super.objects.all()
+        supers = Super.objects.all()
         serializer = SuperSerializer(supers, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
@@ -19,13 +19,13 @@ def super_list(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-def product_detail(request, pk):
+def super_detail(request, pk):
     super = get_object_or_404(Super, pk=pk)
     if request.method == 'GET':
-        serializer = SuperSerializer(product)
+        serializer = SuperSerializer(super)
         return Response(serializer.data)
     elif request.method == 'PUT':
-        serializer = SuperSerializer(product, data=request.data)
+        serializer = SuperSerializer(super, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
