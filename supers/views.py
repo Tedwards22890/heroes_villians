@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -15,19 +16,36 @@ def super_list(request):
         type_param=request.query_params.get('type')
         
         supers = Super.objects.all()
-        custom_response = {}
 
         types = SuperType.objects.all()
+        custom_response = {}
 
         if type_param:
             supers = supers.filter(super_type__type=type_param)
-            if type_param:
+            serializer = SuperSerializer(supers, many=True)
+            return Response(serializer.data)
+        else:
+            for type in types:
+                supers = Super.objects.filter(super_type_id=type.id)
+
+                super_serializer = SuperSerializer(supers, many=True)
+
+                custom_response[type.type] = {
+                    "type": type.type,
+                    "supers": super_serializer.data
+                }
+
+        return Response(custom_response)
+
+
+
+
+
 
             
 
 
-        serializer = SuperSerializer(supers, many=True)
-        return Response(custom_response)
+
     elif request.method == 'POST':
         serializer = SuperSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -47,4 +65,4 @@ def super_detail(request, pk):
         return Response(serializer.data)
     elif request.method == 'DELETE':
         super.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)    
+        return Response(status=status.HTTP_204_NO_CONTENT)
